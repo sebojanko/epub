@@ -1,13 +1,59 @@
-package main
+package epub
 
 import (
 	"archive/zip"
-	"encoding/csv"
 	"encoding/xml"
 	"io/ioutil"
 	"log"
-	"os"
 )
+
+// Public function to retrieve metadata from epub file.
+// Params: string - epub filename
+// Returns: Metadata - struct containing metadata
+func GetMetadata(filename string) Metadata {
+	reader := openFile(filename)
+	defer reader.Close()
+
+	metadataFile := findMetadataFile(reader)
+	return getMetadataFromContainerFile(reader, metadataFile)
+}
+
+// Check for all the files inside the epub to find the container.xml file which contains
+// the path to the metadata file.
+// Params: *zip.ReadCloser - reader object
+// Returns: string - file path to metadata file
+func findMetadataFile(reader *zip.ReadCloser) string {
+	filePath := ""
+
+	for _, f := range reader.File {
+		if f.Name == "META-INF/container.xml" {
+			container := parseContainerXML(f)
+			filePath = metadataFilePath(container)
+			break
+		}
+	}
+	return filePath
+}
+
+// Extracts the full path to the metadata file from container.xml
+// Params: Container - struct with XML data from container.xml
+// Returns: string - file path to the metadata file
+func metadataFilePath(container Container) string {
+	return container.Rootfiles[0].FullPath
+}
+
+// Find the metadata file and fills the Metadata struct with data
+//***TODO
+func getMetadataFromContainerFile(reader *zip.ReadCloser, metadataFile string) Metadata {
+	var metadata Metadata
+	for _, f := range reader.File {
+		if f.Name == metadataFile {
+			metadata = parseMetadata(f)
+			break
+		}
+	}
+	return metadata
+}
 
 // Parses a container.xml file which is a file in META-INF/ that contains the path to content.opf.
 // content.opf contains the meta data on the .epub. Returns the filled Container struct.
@@ -68,27 +114,6 @@ func readFileContent(f *zip.File) []byte {
 	check(err)
 
 	return byteValue
-}
-
-// Creates the CSV file and initializes the CSV Writer
-// Params: string - name of the file
-// Returns: *csv.Writer
-func initCSVWriter(filename string) *csv.Writer {
-	f, err := os.Create(filename)
-	check(err)
-	w := csv.NewWriter(f)
-
-	return w
-}
-
-// Writes an array of strings to a CSV file, comma delimited
-// Params: *csv.Writer - pointer to object which writes to the file
-// 		   []string - array of strings to write
-// Returns: error
-func writeLineToCSV(w *csv.Writer, fields []string) error {
-	err := w.Write(fields)
-	defer w.Flush()
-	return err
 }
 
 // Check's if the error is not nil
