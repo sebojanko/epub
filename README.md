@@ -10,14 +10,14 @@ The metadata file will usually have the extension `.opf`, but it's also an XML f
 I've found most books have these fields available. Some fields may sometimes be empty, depends on the file creator.
 ```
 type Metadata struct {
-  ISBN        string `xml:"identifier"`
-	Title       string `xml:"title"`
-	Description string `xml:"description"`
-	Creator     string `xml:"creator"`
-	Date        string `xml:"date"`
-	Publisher   string `xml:"publisher"`
-	Language    string `xml:"language"`
-	Format      string `xml:"format"`
+    ISBN        string `xml:"identifier"`
+    Title       string `xml:"title"`
+    Description string `xml:"description"`
+    Creator     string `xml:"creator"`
+    Date        string `xml:"date"`
+    Publisher   string `xml:"publisher"`
+    Language    string `xml:"language"`
+    Format      string `xml:"format"`
 }
 ```
 
