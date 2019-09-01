@@ -42,8 +42,7 @@ func metadataFilePath(container Container) string {
 	return container.Rootfiles[0].FullPath
 }
 
-// Find the metadata file and fills the Metadata struct with data
-//***TODO
+// Finds the metadata file and fills the Metadata struct with data
 func getMetadataFromContainerFile(reader *zip.ReadCloser, metadataFile string) Metadata {
 	var metadata Metadata
 	for _, f := range reader.File {
@@ -56,7 +55,7 @@ func getMetadataFromContainerFile(reader *zip.ReadCloser, metadataFile string) M
 }
 
 // Parses a container.xml file which is a file in META-INF/ that contains the path to content.opf.
-// content.opf contains the meta data on the .epub. Returns the filled Container struct.
+// content.opf contains the .epub file meta data. Returns the filled Container struct.
 // Params: *zip.File - pointer to epub file object
 // Returns: Container
 func parseContainerXML(f *zip.File) Container {
